@@ -11,5 +11,10 @@
   "license": "MIT",
   "devDependencies": {
     "electron": "^19.0.7"
+  },
+  "dependencies": {
+    "@fluentui/web-components": "^2.5.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   }
 }

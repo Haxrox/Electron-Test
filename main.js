@@ -1,5 +1,14 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu, dialog } = require('electron');
 const path = require('path');
+
+async function handleFileOpen() {
+    const { canceled, filePaths } = await dialog.showOpenDialog()
+    if (canceled) {
+        return
+    } else {
+        return filePaths[0]
+    }
+}
 
 const createWindow = () => {
     const win = new BrowserWindow({
@@ -10,13 +19,45 @@ const createWindow = () => {
         }
     });
 
+    const menu = Menu.buildFromTemplate([
+        {
+            label: "counter",
+            submenu: [
+                {
+                    click: () => win.webContents.send('update-counter', 1),
+                    label: 'Increment',
+                },
+                {
+                    click: () => win.webContents.send('update-counter', -1),
+                    label: 'Decrement',
+                }
+            ]
+        }
+    ])
+    Menu.setApplicationMenu(menu);
     win.loadFile('index.html');
+    win.webContents.openDevTools();
 };
 
 app.whenReady().then(() => {
-    createWindow()
+    ipcMain.on('set-title', (event, title) => {
+        const webContents = event.sender;
+        const win = BrowserWindow.fromWebContents(webContents);
+
+        win.setTitle(title);
+    });
+    ipcMain.handle('dialog:openFile', handleFileOpen);
+    ipcMain.on('counter-value', (_event, value) => {
+        console.log(value) // will print value to Node console
+    });
+    createWindow();
+    app.on('activate', function () {
+        if (BrowserWindow.getAllWindows().length === 0) createWindow()
+    })
 });
 
 app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') app.quit()
+    if (process.platform !== 'darwin') {
+        app.quit();
+    }
 });
