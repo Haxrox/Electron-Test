@@ -10,7 +10,7 @@
   "author": "Haxrox",
   "license": "MIT",
   "devDependencies": {
-    "electron": "^19.0.7"
+    "electron": "^42.11.16"
   },
   "dependencies": {
     "@fluentui/web-components": "^2.5.3",
